@@ -10,7 +10,6 @@ const session = require('express-session')
 const app = new express();
 const moment = require('moment')
 
-
 dotenv.config();
 app.use(express.static(path.join(process.cwd() + "/public/uploads/")));
 app.use(session({

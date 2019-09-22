@@ -66,15 +66,17 @@ serviceRoute.route('/login')
         })
     })
 
-//Forgot Password
 
-serviceRoute.route('/forget-password')
-    .post((req, res) => {
+// Set Status Online /Offline
 
-        serviceController.forgotPassword(req.body).then(result => {
+serviceRoute.route('/setStatus')
+    .patch((req, res) => {
+
+        serviceController.setStatus(req.body).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
-                data: result
+                data: result,
+                message: CONSTANT.UPDATEMSG
 
             })
         }).catch(error => {
@@ -83,41 +85,6 @@ serviceRoute.route('/forget-password')
             return res.json({ message: error, status: CONSTANT.FALSESTATUS })
         })
     })
-
-// Set Error Message for forgetPassword
-
-serviceRoute.route('/forgetpassword').
-    get((req, res) => {
-        if (!(req.query.user || req.query.token)) {
-            res.redirect('/server/app/views/404-page')
-        }
-        let message = req.flash('errm');
-        console.log("messagev", message);
-
-        res.render('forgetPassword', { title: 'Forget password', message })
-    })
-
-
-// Verify Passowrd
-
-serviceRoute.route('/forgetpassword').
-    post((req, res) => {
-        serviceController.forgetPasswordVerify(req.body, req.query).then(
-            message => {
-                res.render('forgetPassword', { message: message, title: 'Forget password' })
-            },
-            err => {
-                if (err.expired) {
-                    return res.send(`<h1 style="text-align:center; font-size:100px" >Forget password link has been expired.</h1>`)
-                }
-                req.flash('errm', err)
-
-                let url = `/charity/user/forgetpassword?token=${req.query.token}&user=${req.query.user}`
-                res.redirect(url)
-            }
-        )
-    })
-
 //Add Photos
 serviceRoute.route('/addPhotos').
     patch(upload.fields([{ name: 'photos', maxCount: 10 }]), (req, res) => {
@@ -150,12 +117,37 @@ serviceRoute.route('/addVerificationPhotos').
 
 // Accept Request
 
-serviceRoute.route('/acceptRequest/:request_id').
+serviceRoute.route('/acceptDenyRequest').
     patch((req, res) => {
-        serviceController.acceptRequest(req.params.request_id).then(result => {
+        serviceController.acceptDenyRequest(req.body).then(result => {
+            var message
+            if (result.status == 'confirmed')
+                message = CONSTANT.ACCEPTREQUEST
+            else
+                message = CONSTANT.REQUESTDECLINE
             return res.json({
+
                 success: CONSTANT.TRUE,
-                message: CONSTANT.ACCEPTREQUEST
+                message: message,
+                data: result
+            })
+        }).catch(error => {
+            console.log("error", error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS })
+        })
+    })
+
+// Change Password
+
+serviceRoute.route('/changePassword').
+    patch((req, res) => {
+        serviceController.changePassword(req.body).then(result => {
+            return res.json({
+
+                success: CONSTANT.TRUE,
+                message: CONSTANT.UPDATEMSG,
+                data: result
             })
         }).catch(error => {
             console.log("error", error);

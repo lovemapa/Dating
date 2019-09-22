@@ -20,7 +20,7 @@ var serviceModelSchema = new Schema({
     language: [{ type: String }],
     photos: [{ type: String }],
     verificationPhotos: [{ type: String }],
-    status: { type: Number },
+    status: { type: Number, default: 0 }, // 0 (offline)  1 (online)
     date: { type: Number },
     profilePic: { type: String, default: '/default.png' },
     ratings: { type: Number }
@@ -37,7 +37,6 @@ serviceModelSchema.virtual('avgratings', {
 })
 var virtualCount = serviceModelSchema.virtual('serviceRatings');
 virtualCount.get(function () {
-    console.log(this.avgratings);
 
     if (!this.avgratings || this.avgratings.length === 0) return 0;
     let totalReviews = this.avgratings.length;
@@ -46,7 +45,7 @@ virtualCount.get(function () {
         rating = rating + review.ratings
     });
     let avrageRate = rating / totalReviews;
-    return avrageRate;
+    return parseFloat(avrageRate.toFixed(1));
 
 })
 module.exports = mongoose.model('service', serviceModelSchema);

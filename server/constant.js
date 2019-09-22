@@ -29,6 +29,7 @@ let constant = {
     ADDFAIL: 'Something went wrong while uploading',
     SAVEMSG: 'Saved sucessfully',
     ACCEPTREQUEST: 'Request Accepted',
+    REQUESTDECLINE: 'Request Declined',
     DELETEMSG: 'Deleted sucessfully',
     NOFILEMSG: 'No file selected',
     SCHEDULEMSG: 'Booking schedule successfully',

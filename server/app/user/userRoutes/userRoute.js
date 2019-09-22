@@ -6,6 +6,8 @@ const multer = require('multer');
 
 
 
+const commonController = require('../../../app/common/controllers/commonController')
+
 
 const storage = multer.diskStorage({
   destination: process.cwd() + "/public/uploads/",
@@ -200,4 +202,8 @@ userRoute.route('/removeFavourites/:serviceId')
       return res.json({ message: err, success: CONSTANT.FALSE })
     })
   })
+
+
+userController.cronJob()
+
 module.exports = userRoute;

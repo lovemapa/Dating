@@ -11,8 +11,9 @@ var bookingModelSchema = new Schema({
     contact: { type: String, required: true },
     userId: { type: Schema.ObjectId, ref: 'user', required: true },
     serviceId: { type: Schema.ObjectId, ref: 'service', required: true },
-    status: { type: String, enum: ['pending', 'confirm'], default: 'pending' },
-    ratings: { type: Number, default: 0 }
+    status: { type: String, enum: ['pending', 'confirmed', 'closed'], default: 'pending' },
+    ratings: { type: Number, default: 0 },
+    date: { type: Number }
 
 })
 

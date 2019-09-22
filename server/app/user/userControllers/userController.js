@@ -9,6 +9,10 @@ const charityDocsModel = require('../../../models/charityDocumentModel')
 const favouritesModel = require('../../../models/favouritesModel')
 const moment = require('moment')
 const rn = require('random-number')
+var CronJob = require('cron').CronJob;
+
+
+
 class charity {
     signUp(data) {
 
@@ -190,7 +194,8 @@ class charity {
             houseNumber: data.houseNumber,
             contact: data.contact,
             userId: data.userId,
-            serviceId: data.serviceId
+            serviceId: data.serviceId,
+            date: moment().valueOf()
         })
         return BookingRegistrationData;
     }
@@ -285,7 +290,22 @@ class charity {
         })
     }
 
+    cronJob() {
+        new CronJob('* * * * * *', function () {
+            bookingModel.find({ status: "pending" }).then(result => {
+                result.forEach(value => {
 
+                    if (((Date.now() - value.date) / 60000) > 1) {
+                        bookingModel.updateMany({ _id: value._id }, { $set: { status: "closed", ratings: -1 } }, { multi: true }).
+                            then(updateResult => {
+                                console.log(updateResult);
+                            })
+                    }
+                })
+            })
+
+        }, null, true, 'America/Los_Angeles');
+    }
 
 }
 

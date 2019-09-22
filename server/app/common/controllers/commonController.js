@@ -4,6 +4,7 @@ const sgTransport = require('nodemailer-sendgrid-transport');
 const crypto = require('crypto');
 
 
+
 function encrypt(text) {
     const cipher = crypto.createCipher(algorithm, secretKey);
     let crypted = cipher.update(text, 'utf8', 'hex');
@@ -65,6 +66,8 @@ class commonController {
             transporter.close();
         });
     }
+
+
 
 
 }

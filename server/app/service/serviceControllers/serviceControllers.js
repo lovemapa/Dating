@@ -11,7 +11,7 @@ class user {
 
 
     signUp(data, files) {
-        
+
         var verificationPhotos = []
         var photos = []
         return new Promise((resolve, reject) => {
@@ -173,8 +173,6 @@ class user {
 
     addPhotos(data, files) {
         return new Promise((resolve, reject) => {
-            console.log(files);
-
             var photos = []
             if ((!data._id && !files) || Object.keys(files).length === 0)
                 reject(CONSTANT.MISSINGPARAMS)
@@ -225,11 +223,18 @@ class user {
         })
     }
 
-    acceptRequest(_id) {
+    acceptDenyRequest(data) {
         return new Promise((resolve, reject) => {
-            if (!_id)
+            if (!data.bookingId || !data.response)
                 reject(CONSTANT.MISSINGPARAMS)
-            bookingModel.findByIdAndUpdate({ _id: _id }, { $set: { status: "confirm" } }, { new: true }).then(update => {
+            var status
+            if (data.response == 'accept')
+                status = 'confirmed'
+            else
+                status = 'closed'
+            console.log(data);
+
+            bookingModel.findByIdAndUpdate({ _id: data.bookingId }, { $set: { status: status } }, { new: true }).then(update => {
                 if (update)
                     resolve(update)
                 else
@@ -250,7 +255,7 @@ class user {
             else {
                 var requests = []
                 var bookings = []
-                bookingModel.find({ serviceId: _id }).populate({ path: 'userId', select: '_id ratings nickName' }).then(result => {
+                bookingModel.find({ serviceId: _id, status: { $ne: "closed" } }).populate({ path: 'userId', select: '_id ratings nickName' }).then(result => {
                     result.map(category => {
                         if (category.status == 'pending')
                             requests.push(category)
@@ -269,6 +274,30 @@ class user {
             }
         })
     }
+
+
+    setStatus(data) {
+        return new Promise((resolve, reject) => {
+            console.log(data);
+
+            if (!data._id || !data.status)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+                serviceModel.findByIdAndUpdate({ _id: data._id }, { $set: { status: parseInt(data.status) } }, { new: true }).then(updateStatus => {
+
+                    console.log(updateStatus);
+                    resolve(updateStatus)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
+
 
 }
 module.exports = new user();
