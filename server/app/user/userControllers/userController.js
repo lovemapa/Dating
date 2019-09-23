@@ -130,7 +130,7 @@ class charity {
     servicesList() {
         return new Promise((resolve, reject) => {
 
-            serviceModel.find({ status: { $ne: 0 } }).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).
+            serviceModel.find({ status: { $ne: 0 } }).select('_id  firstName lastName profilePic').populate({ path: 'ratings' }).
                 then(result => {
 
                     resolve(result)

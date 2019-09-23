@@ -12,9 +12,29 @@ var bookingModelSchema = new Schema({
     userId: { type: Schema.ObjectId, ref: 'user', required: true },
     serviceId: { type: Schema.ObjectId, ref: 'service', required: true },
     status: { type: String, enum: ['pending', 'confirmed', 'closed'], default: 'pending' },
-    ratings: { type: Number, default: 0 },
+    serviceRatings: { type: Number, default: 0 },
+    userRatings: { type: Number, default: 0 },
     date: { type: Number }
 
+})
+
+bookingModelSchema.set('toObject', { virtuals: true });
+bookingModelSchema.set('toJSON', { virtuals: true });
+bookingModelSchema.virtual('avgratings', {
+    ref: 'user',
+    localField: 'userId',
+    foreignField: '_id',
+})
+var virtualCount = bookingModelSchema.virtual('Ratings');
+virtualCount.get(function () {
+    if (!this.avgratings || this.avgratings.length === 0) return 0;
+    let totalReviews = this.avgratings.length;
+    let rating = 0;
+    this.avgratings.forEach(review => {
+        rating = rating + review.userRatings
+    });
+    let avrageRate = rating / totalReviews;
+    return parseFloat(avrageRate.toFixed(1));
 })
 
 

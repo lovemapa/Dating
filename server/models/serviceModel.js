@@ -22,8 +22,8 @@ var serviceModelSchema = new Schema({
     verificationPhotos: [{ type: String }],
     status: { type: Number, default: 0 }, // 0 (offline)  1 (online)
     date: { type: Number },
-    profilePic: { type: String, default: '/default.png' },
-    ratings: { type: Number }
+    profilePic: { type: String, default: '/default.png' }
+
 
 })
 
@@ -33,16 +33,17 @@ serviceModelSchema.virtual('avgratings', {
     ref: 'booking',
     localField: '_id',
     foreignField: 'serviceId',
-    options: { select: "ratings" }
+    options: { select: "serviceRatings" }
 })
 var virtualCount = serviceModelSchema.virtual('serviceRatings');
 virtualCount.get(function () {
+    console.log(this.avgratings);
 
     if (!this.avgratings || this.avgratings.length === 0) return 0;
     let totalReviews = this.avgratings.length;
     let rating = 0;
     this.avgratings.forEach(review => {
-        rating = rating + review.ratings
+        rating = rating + review.serviceRatings
     });
     let avrageRate = rating / totalReviews;
     return parseFloat(avrageRate.toFixed(1));

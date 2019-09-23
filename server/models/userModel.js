@@ -15,11 +15,25 @@ var userModelSchema = new Schema({
     area: { type: String },
     state: { type: String },
     callType: { type: String, enum: ['outcall', 'incall'] },
-    ratings: { type: Number, default: 0 },
     favourites: [{ type: Schema.ObjectId, ref: 'service' }]
 
 })
 
 
 
+
 module.exports = mongoose.model('user', userModelSchema);
+
+// db.getCollection('bookings').aggregate([
+
+//     {
+//         $match: { "date": { $gte: new ISODate("2014-01-01"), $lt: new ISODate("2015-01-01") } }
+//     },
+//     {
+//         $group: {
+//             _id: "$userId",
+//             itemsSold: { $addToSet: "$userRatings" },
+//             ratings: { $avg: "$userRatings" }
+//         }
+//     }
+// ])

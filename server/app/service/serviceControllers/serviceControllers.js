@@ -255,7 +255,7 @@ class user {
             else {
                 var requests = []
                 var bookings = []
-                bookingModel.find({ serviceId: _id, status: { $ne: "closed" } }).populate({ path: 'userId', select: '_id ratings nickName' }).then(result => {
+                bookingModel.find({ serviceId: _id, status: { $ne: "closed" } }).populate({ path: 'avgratings' }).populate({ path: 'userId', select: '_id ratings nickName' }).then(result => {
                     result.map(category => {
                         if (category.status == 'pending')
                             requests.push(category)
