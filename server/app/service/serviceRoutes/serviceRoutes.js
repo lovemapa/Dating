@@ -157,9 +157,9 @@ serviceRoute.route('/changePassword').
     })
 
 //Get request List
-serviceRoute.route('/getRequestList/:service_id')
-    .get((req, res) => {
-        serviceController.getRequestList(req.params.service_id).then(result => {
+serviceRoute.route('/getRequestList')
+    .post((req, res) => {
+        serviceController.getRequestList(req.body).then(result => {
             return res.send({
                 success: CONSTANT.TRUE,
                 data: result

@@ -6,9 +6,6 @@ const multer = require('multer');
 
 
 
-const commonController = require('../../../app/common/controllers/commonController')
-
-
 const storage = multer.diskStorage({
   destination: process.cwd() + "/public/uploads/",
   filename: function (req, file, cb) {
@@ -147,9 +144,9 @@ userRoute.route('/createBooking')
   })
 
 //Get request List
-userRoute.route('/getRequestList/:user_id')
-  .get((req, res) => {
-    userController.getRequestList(req.params.user_id).then(result => {
+userRoute.route('/getRequestList')
+  .post((req, res) => {
+    userController.getRequestList(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
         data: result
@@ -175,6 +172,8 @@ userRoute.route('/addFavourites')
     })
   })
 
+
+// Show Favourites List
 userRoute.route('/showFavourites/:_id')
   .get((req, res) => {
     userController.showFavourites(req.params._id).then(result => {
@@ -203,6 +202,35 @@ userRoute.route('/removeFavourites/:serviceId')
     })
   })
 
+//Provide Ratings to service and close the bookingf
+userRoute.route('/provideRatings')
+  .patch((req, res) => {
+    userController.provideRatings(req.body).then(result => {
+      return res.send({
+        success: CONSTANT.TRUE,
+        message: CONSTANT.UPDATEMSG
+      })
+    }).catch(err => {
+      console.log(err);
+      return res.json({ message: err, success: CONSTANT.FALSE })
+    })
+  })
+
+userRoute.route('/changePassword').
+  patch((req, res) => {
+    userController.changePassword(req.body).then(result => {
+      return res.json({
+
+        success: CONSTANT.TRUE,
+        message: CONSTANT.UPDATEMSG,
+        data: result
+      })
+    }).catch(error => {
+      console.log("error", error);
+
+      return res.json({ message: error, status: CONSTANT.FALSESTATUS })
+    })
+  })
 
 userController.cronJob()
 

@@ -15,25 +15,33 @@ var userModelSchema = new Schema({
     area: { type: String },
     state: { type: String },
     callType: { type: String, enum: ['outcall', 'incall'] },
-    favourites: [{ type: Schema.ObjectId, ref: 'service' }]
+    favourites: [{ type: Schema.ObjectId, ref: 'service' }],
+    isDeleted: { type: Number, default: 0 }
+
+})
+
+userModelSchema.set('toObject', { virtuals: true });
+userModelSchema.set('toJSON', { virtuals: true });
+userModelSchema.virtual('allRatings', {
+    ref: 'booking',
+    localField: '_id',
+    foreignField: 'userId'
+})
+
+var virtualCount = userModelSchema.virtual('userRatings');
+virtualCount.get(function () {
+
+    if (!this.allRatings || this.allRatings.length === 0) return 0;
+    let totalReviews = this.allRatings.length;
+    let rating = 0;
+    this.allRatings.forEach(review => {
+        rating = rating + review.userRatings
+    });
+    let avrageRate = rating / totalReviews;
+    return parseFloat(avrageRate.toFixed(1));
 
 })
 
 
-
-
 module.exports = mongoose.model('user', userModelSchema);
 
-// db.getCollection('bookings').aggregate([
-
-//     {
-//         $match: { "date": { $gte: new ISODate("2014-01-01"), $lt: new ISODate("2015-01-01") } }
-//     },
-//     {
-//         $group: {
-//             _id: "$userId",
-//             itemsSold: { $addToSet: "$userRatings" },
-//             ratings: { $avg: "$userRatings" }
-//         }
-//     }
-// ])

@@ -4,6 +4,7 @@ const CONSTANT = require('../../../constant')
 const commonFunctions = require('../../common/controllers/commonFunctions')
 const commonController = require('../../common/controllers/commonController')
 const bookingModel = require('../../../models/bookingModel')
+const userModel = require('../../../models/userModel')
 
 const moment = require('moment')
 
@@ -248,14 +249,30 @@ class user {
         })
     }
 
-    getRequestList(_id) {
-        return new Promise((resolve, reject) => {
-            if (!_id)
+    getRequestList(data) {
+        return new Promise(async (resolve, reject) => {
+            if (!data.serviceId)
                 reject(CONSTANT.MISSINGPARAMS)
             else {
+                var query = {}
+                if (data.bookingId) {
+                    query.serviceId = data.serviceId;
+                    query._id = data.bookingId;
+                    query.status = { $ne: "closed" }
+                }
+                else {
+                    query.serviceId = data.serviceId;
+                    query.status = { $ne: "closed" }
+                }
+                console.log(query);
+
                 var requests = []
                 var bookings = []
-                bookingModel.find({ serviceId: _id, status: { $ne: "closed" } }).populate({ path: 'avgratings' }).populate({ path: 'userId', select: '_id ratings nickName' }).then(result => {
+                var userId = []
+                bookingModel.find(query).populate({ path: 'userId', select: '_id ratings nickName', populate: { path: 'allRatings ', select: 'userRatings' } }).then(result => {
+
+
+                    console.log(userId);
                     result.map(category => {
                         if (category.status == 'pending')
                             requests.push(category)
@@ -275,6 +292,36 @@ class user {
         })
     }
 
+    changePassword(data) {
+        return new Promise((resolve, reject) => {
+            console.log(data);
+
+            if (!data.oldPassword || !data.newPassword || !data.confirmPassword || !data._id)
+                reject(CONSTANT.MISSINGPARAMS)
+            if (data.confirmPassword != data.confirmPassword)
+                reject(CONSTANT.NOTSAMEPASSWORDS)
+            else {
+                serviceModel.findOne({ _id: data._id }).then(oldPass => {
+
+                    if (commonFunctions.compareHash(data.oldPassword, oldPass.password)) {
+                        serviceModel.findByIdAndUpdate({ _id: data._id }, { $set: { password: commonFunctions.hashPassword(data.newPassword) } }, { new: true }).then(update => {
+                            resolve(update)
+                        })
+                    }
+                    else {
+                        reject(CONSTANT.WRONGOLDPASS)
+                    }
+                    resolve(oldPass)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
 
     setStatus(data) {
         return new Promise((resolve, reject) => {

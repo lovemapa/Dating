@@ -44,6 +44,7 @@ let constant = {
     ALREADYUSEDCODE: 'Promocode already Used',
     REACHEDCODELIMIT: 'You have reached usage limit,You can not used this code.',
     NOTSAMEPASSWORDS: "Passwords don't match",
+    WRONGOLDPASS: 'Wrong Old Password',
     WRONGCREDENTIALS: 'Wrong credentials',
     NOPASSWORDPROVIDED: 'Please Provide Password',
     SIGNUPSUCCESS: 'Account created Successfully',

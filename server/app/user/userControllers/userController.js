@@ -69,7 +69,7 @@ class charity {
         return userRegistrationData;
     }
 
-    // login for Charity organization
+    // login for User
 
     login(data) {
         return new Promise((resolve, reject) => {
@@ -130,7 +130,7 @@ class charity {
     servicesList() {
         return new Promise((resolve, reject) => {
 
-            serviceModel.find({ status: { $ne: 0 } }).select('_id  firstName lastName profilePic').populate({ path: 'ratings' }).
+            serviceModel.find({ status: { $ne: 0 } }).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).
                 then(result => {
 
                     resolve(result)
@@ -199,14 +199,27 @@ class charity {
         })
         return BookingRegistrationData;
     }
-    getRequestList(_id) {
+    getRequestList(data) {
         return new Promise((resolve, reject) => {
-            if (!_id)
+            if (!data.userId)
                 reject(CONSTANT.MISSINGPARAMS)
             else {
+                console.log(data);
+                var query = {}
+                if (data.bookingId) {
+                    query.userId = data.userId;
+                    query._id = data.bookingId;
+                    query.status = { $ne: "closed" }
+                }
+                else {
+                    query.userId = data.userId;
+                    query.status = { $ne: "closed" }
+                }
+
+
                 var requests = []
                 var bookings = []
-                bookingModel.find({ userId: _id }).populate({ path: 'serviceId', select: '_id ratings firstName lastName' }).then(result => {
+                bookingModel.find(query).populate({ path: 'serviceId', select: '_id ratings firstName lastName', populate: { path: "avgratings" } }).then(result => {
 
                     result.map(category => {
                         if (category.status == 'pending')
@@ -290,6 +303,56 @@ class charity {
         })
     }
 
+    provideRatings(data) {
+        return new Promise((resolve, reject) => {
+            if (!data._id)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+
+                bookingModel.findByIdAndUpdate({ _id: data._id }, { $set: { status: "closed", serviceRatings: data.ratings } }).then(result => {
+                    resolve(result)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
+
+
+    changePassword(data) {
+        return new Promise((resolve, reject) => {
+            console.log(data);
+
+            if (!data.oldPassword || !data.newPassword || !data.confirmPassword || !data._id)
+                reject(CONSTANT.MISSINGPARAMS)
+            if (data.confirmPassword != data.confirmPassword)
+                reject(CONSTANT.NOTSAMEPASSWORDS)
+            else {
+                userModel.findOne({ _id: data._id }).then(oldPass => {
+
+                    if (commonFunctions.compareHash(data.oldPassword, oldPass.password)) {
+                        userModel.findByIdAndUpdate({ _id: data._id }, { $set: { password: commonFunctions.hashPassword(data.newPassword) } }, { new: true }).then(update => {
+                            resolve(update)
+                        })
+                    }
+                    else {
+                        reject(CONSTANT.WRONGOLDPASS)
+                    }
+                    resolve(oldPass)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
     cronJob() {
         new CronJob('* * * * * *', function () {
             bookingModel.find({ status: "pending" }).then(result => {
@@ -304,7 +367,7 @@ class charity {
                 })
             })
 
-        }, null, true, 'America/Los_Angeles');
+        });
     }
 
 }

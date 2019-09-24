@@ -18,25 +18,6 @@ var bookingModelSchema = new Schema({
 
 })
 
-bookingModelSchema.set('toObject', { virtuals: true });
-bookingModelSchema.set('toJSON', { virtuals: true });
-bookingModelSchema.virtual('avgratings', {
-    ref: 'user',
-    localField: 'userId',
-    foreignField: '_id',
-})
-var virtualCount = bookingModelSchema.virtual('Ratings');
-virtualCount.get(function () {
-    if (!this.avgratings || this.avgratings.length === 0) return 0;
-    let totalReviews = this.avgratings.length;
-    let rating = 0;
-    this.avgratings.forEach(review => {
-        rating = rating + review.userRatings
-    });
-    let avrageRate = rating / totalReviews;
-    return parseFloat(avrageRate.toFixed(1));
-})
-
 
 
 module.exports = mongoose.model('booking', bookingModelSchema);

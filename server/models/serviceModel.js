@@ -37,8 +37,6 @@ serviceModelSchema.virtual('avgratings', {
 })
 var virtualCount = serviceModelSchema.virtual('serviceRatings');
 virtualCount.get(function () {
-    console.log(this.avgratings);
-
     if (!this.avgratings || this.avgratings.length === 0) return 0;
     let totalReviews = this.avgratings.length;
     let rating = 0;
