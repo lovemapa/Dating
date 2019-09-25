@@ -127,6 +127,64 @@ class charity {
 
         })
     }
+
+    resendVerification(data) {
+        return new Promise((resolve, reject) => {
+            if (!data.email)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+                const token = rn({
+                    min: 1001,
+                    max: 9999,
+                    integer: true
+                })
+                userModel.findOneAndUpdate({ email: data.email }, { $set: { token: token } }, { new: true }).then(updateResult => {
+                    resolve(updateResult)
+                    commonController.sendMail(data.email, token, result => {
+                        if (result.status === 1)
+                            console.log(result.message.response);
+
+                        else
+                            reject(CONSTANT.SOMETHINGWRONG)
+                    })
+                })
+            }
+        })
+
+
+    }
+
+    completeRegistration(data) {
+        return new Promise((resolve, reject) => {
+            if (!data.genderPreference || !data.state || !data.area || !data.callType)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+                var query = {}
+
+                if (data.genderPreference)
+                    query.genderPreference = data.genderPreference
+                if (data.state)
+                    query.state = data.state
+                if (data.area)
+                    query.area = data.area
+                if (data.callType)
+                    query.callType = data.callType
+
+                userModel.findByIdAndUpdate({ _id: data._id }, { $set: query }, { new: true }).then(updateResult => {
+                    resolve(updateResult)
+                    commonController.sendMail(data.email, token, result => {
+                        if (result.status === 1)
+                            console.log(result.message.response);
+
+                        else
+                            reject(CONSTANT.SOMETHINGWRONG)
+                    })
+                })
+            }
+        })
+
+
+    }
     servicesList() {
         return new Promise((resolve, reject) => {
 
@@ -150,7 +208,7 @@ class charity {
             if (!_id)
                 reject(CONSTANT.MISSINGPARAMS)
             else {
-                serviceModel.find({ _id: _id }).then(result => {
+                serviceModel.find({ _id: _id }).select('_id  firstName lastName profilePic twitterId eyesColor language bodyType measurments').populate({ path: 'avgratings' }).then(result => {
                     resolve(result)
                 })
                     .catch(error => {

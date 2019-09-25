@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage }).single('file')
 
-
+//Register Admin 
 adminRoute.route('/register')
     .post((req, res) => {
         adminController.signUp(req.body).then(result => {
@@ -44,9 +44,12 @@ adminRoute.route('/register')
         })
 
     })
+
+
+//edit User    
 adminRoute.route('/editUser')
     .patch(upload, (req, res) => {
-        adminController.editUser(req.body, req.file, req.params._id).then(result => {
+        adminController.editUser(req.body, req.file).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
                 data: result,
@@ -61,6 +64,26 @@ adminRoute.route('/editUser')
 
     })
 
+//Edit service
+adminRoute.route('/editService')
+    .patch(upload, (req, res) => {
+        adminController.editService(req.body, req.file).then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+                message: CONSTANT.UPDATEMSG,
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
+
+
+// Login Admin
 adminRoute.route('/login')
     .post(upload, (req, res) => {
         adminController.login(req.body, req.file, req.params._id).then(result => {
@@ -77,6 +100,7 @@ adminRoute.route('/login')
 
     })
 
+//Delete User
 adminRoute.route('/deleteUser/:user_id')
     .patch((req, res) => {
         adminController.deleteUser(req.params.user_id).then(result => {
@@ -94,6 +118,25 @@ adminRoute.route('/deleteUser/:user_id')
 
     })
 
+//Delete Service
+adminRoute.route('/deleteService/:service_id')
+    .patch((req, res) => {
+        adminController.deleteService(req.params.service_id).then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+                message: CONSTANT.DELETEMSG
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
+
+//Get all request Count
 adminRoute.route('/getRequestCount')
     .get((req, res) => {
         adminController.getRequestCount().then(result => {
@@ -110,21 +153,55 @@ adminRoute.route('/getRequestCount')
 
     })
 
-adminRoute.route('/generateCSV')
+
+//Generate User's CSV
+adminRoute.route('/generateUserCSV')
     .post((req, res) => {
-        adminController.generateCSV(req, res)
-        // .then(result => {
-        //     res.download(result)
-        //     return res.json({
-        //         success: CONSTANT.TRUE,
-        //         data: result,
+        adminController.generateUserCSV(req, res)
+    })
 
-        //     })
-        // }).catch(error => {
-        //     console.log(error);
 
-        //     return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
-        // })
+
+//Generate Service's CSV
+adminRoute.route('/generateServiceCSV')
+    .post((req, res) => {
+        adminController.generateServiceCSV(req, res)
+    })
+
+
+//Show alll requests List (pending , closed, ongoing)
+adminRoute.route('/displayBookings')
+    .get((req, res) => {
+        adminController.displayBookings().then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
+
+
+//Update Bookings
+adminRoute.route('/updateBooking')
+    .patch((req, res) => {
+        adminController.updateBooking(req.body).then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+                message: CONSTANT.UPDATEMSG
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
 
     })
 module.exports = adminRoute

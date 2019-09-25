@@ -34,8 +34,8 @@ class user {
                 });
                 data.verificationPhotos = verificationPhotos
                 data.photos = photos
-                const user = this.createUser(data)
-                user.save().then((result) => {
+                const service = this.createService(data)
+                service.save().then((result) => {
 
                     return resolve(result)
 
@@ -50,10 +50,13 @@ class user {
         })
     }
     // --------Create User Model------------
-    createUser(data) {
+    createService(data) {
         if (data.password)
             data.password = commonFunctions.hashPassword(data.password)
-
+        var measurments = []
+        measurments.push(data.cupSize)
+        measurments.push(data.waistSize)
+        measurments.push(data.hipSize)
 
         let userData = new serviceModel({
             email: data.email,
@@ -74,7 +77,10 @@ class user {
             verificationPhotos: data.verificationPhotos,
             status: data.status,
             ratings: data.ratings,
-            date: moment().valueOf()
+            date: moment().valueOf(),
+            measurments: measurments,
+            eyesColor: data.eyesColor,
+            bodyType: data.bodyType
         })
         return userData;
     }

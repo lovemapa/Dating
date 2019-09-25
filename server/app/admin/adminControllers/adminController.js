@@ -109,6 +109,41 @@ class admin {
         })
     }
 
+    editService(data, file) {
+        return new Promise((resolve, reject) => {
+
+            if (!data) {
+                reject(CONSTANT.MISSINGPARAMS)
+            }
+            else {
+                var query = {}
+                if (data.firstName)
+                    query.firstName = data.firstName
+                if (file)
+                    query.profilePic = '/' + file.filename
+                if (data.email)
+                    query.email = data.email
+                if (data.lastName)
+                    query.lastName = data.lastName
+                if (data.username)
+                    query.username = data.username
+                if (data.status)
+                    query.status = data.status
+                if (data.password)
+                    query.password = commonFunctions.hashPassword(data.password)
+                console.log(query);
+                serviceModel.findByIdAndUpdate({ _id: data._id }, { $set: query }, { new: true }).then(update => {
+                    resolve(update)
+                }).catch(error => {
+                    if (error.errors)
+                        return reject(commonController.handleValidation(error))
+                    return reject(error)
+                })
+            }
+        })
+    }
+
+
     deleteUser(_id) {
         if (!_id) {
             reject(CONSTANT.MISSINGPARAMS)
@@ -126,7 +161,25 @@ class admin {
         }
     }
 
-    generateCSV(req, res) {
+
+    deleteService(_id) {
+        if (!_id) {
+            reject(CONSTANT.MISSINGPARAMS)
+        }
+        else {
+            return new Promise((resolve, reject) => {
+                serviceModel.findByIdAndUpdate({ _id: _id }, { $set: { isDeleted: 1 } }, { new: true }).then(del => {
+                    resolve(del)
+                }).catch(error => {
+                    if (error.errors)
+                        return reject(commonController.handleValidation(error))
+                    return reject(error)
+                })
+            })
+        }
+    }
+
+    generateUserCSV(req, res) {
         let fields = ["_id", "email", "countryCode", "nickName", "area", "state", "callType"]
 
         const opts = { fields };
@@ -146,19 +199,17 @@ class admin {
                     csvData.callType = value.callType;
                     array.push(csvData)
                 })
-                // array.map(cs => {
 
-                //     console.log(cs);
-                // })
                 const csv = parser.parse(array);
-                fs.writeFile('./public/csv/pawan' + Date.now() + ".csv", csv, err => {
+                var path = './public/csv/'
+                var name = '/user' + Date.now() + ".csv"
+                var address = path + name
+                fs.writeFile(address, csv, err => {
                     if (err)
                         console.log(data);
                     else
-                        res.download('/home/pawan/Desktop/response.csv')
+                        res.send({ message: "Downloaded successfully", status: 'true', file: name })
                 })
-
-
 
             }).catch(err => {
                 console.log(err);
@@ -170,6 +221,54 @@ class admin {
 
     }
 
+    generateServiceCSV(req, res) {
+        let fields = ["_id", "email", "contact", "firstName", "lastName", "username", "gender", "status", "language"]
+
+        const opts = { fields };
+
+        try {
+            serviceModel.find().then(data => {
+                const parser = new Parser(opts);
+                var array = []
+                data.map(value => {
+                    var csvData = {}
+                    if (value.status === 1)
+                        csvData.status = 'online'
+                    else
+                        csvData.status = 'offline'
+                    csvData._id = value._id
+                    csvData.email = value.email;
+                    csvData.contact = value.contact;
+                    csvData.firstName = value.firstName;
+                    csvData.lastName = value.lastName;
+                    csvData.username = value.username;
+                    csvData.gender = value.gender;
+                    csvData.language = value.language;
+
+
+                    array.push(csvData)
+                })
+
+                const csv = parser.parse(array);
+                var path = './public/csv/'
+                var name = '/service' + Date.now() + ".csv"
+                var address = path + name
+                fs.writeFile(address, csv, err => {
+                    if (err)
+                        console.log(data);
+                    else
+                        res.send({ message: "Downloaded successfully", status: 'true', file: name })
+                })
+
+            }).catch(err => {
+                console.log(err);
+
+            })
+        } catch (err) {
+            console.error(err);
+        }
+
+    }
 
     getRequestCount() {
         return new Promise((resolve, reject) => {
@@ -188,6 +287,51 @@ class admin {
                     return reject(commonController.handleValidation(error))
                 return reject(error)
             })
+        })
+    }
+
+
+    displayBookings() {
+        return new Promise((resolve, reject) => {
+            bookingModel.find({}).then(result => {
+                resolve(result)
+            }).catch(error => {
+                if (error.errors)
+                    return reject(commonController.handleValidation(error))
+                return reject(error)
+            })
+        })
+    }
+
+
+    updateBooking(data) {
+        return new Promise((resolve, reject) => {
+            if (!data)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+                var query = {}
+                if (data.serviceRatings)
+                    query.serviceRatings = data.serviceRatings
+                if (data.userRatings)
+                    query.userRatings = data.userRatings
+                if (data.status)
+                    query.status = data.status
+                if (data.houseName)
+                    query.houseName = data.houseName
+                if (data.houseNumber)
+                    query.houseNumber = data.houseNumber
+                console.log(query);
+
+                bookingModel.findByIdAndUpdate({ _id: data.bookingId }, { $set: query }, { new: true }).then(result => {
+                    resolve(result)
+                }).catch(error => {
+                    if (error.errors)
+                        return reject(commonController.handleValidation(error))
+                    return reject(error)
+                })
+            }
+
+
         })
     }
 }

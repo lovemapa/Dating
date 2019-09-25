@@ -49,6 +49,7 @@ userRoute.route('/register')
   })
 
 
+
 // User Login Email Password
 userRoute.route('/login')
   .post((req, res) => {
@@ -91,6 +92,22 @@ userRoute.route('/resendVerification')
         success: CONSTANT.TRUE,
         data: result,
         message: CONSTANT.VERIFYMAIL
+      })
+    }).catch(err => {
+      console.log(err);
+
+      return res.json({ message: err, success: CONSTANT.FALSE })
+
+    })
+  })
+
+userRoute.route('/completeRegistration')
+  .patch((req, res) => {
+    userController.completeRegistration(req.body).then(result => {
+      return res.send({
+        success: CONSTANT.TRUE,
+        data: result,
+        message: CONSTANT.SIGNUPSUCCESS
       })
     }).catch(err => {
       console.log(err);

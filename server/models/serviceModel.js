@@ -7,22 +7,26 @@ var serviceModelSchema = new Schema({
     email: { type: String, unique: true },
     contact: { type: String, default: '' },
     username: { type: String, unique: true },
+    bodyType: { type: String },
     firstName: { type: String, default: '' },
     lastName: { type: String, default: '' },
+    eyesColor: { type: String },
     twitterId: { type: String, default: '' },
     password: { type: String },
     gender: { type: String, enum: ['male', 'female'] },
-    height: { type: Number },
-    bustSize: { type: Number },
-    cupSize: { type: Number },
-    waistSize: { type: Number },
-    hipSize: { type: Number },
+    height: { type: String },
+    bustSize: { type: String },
+    cupSize: { type: String },
+    waistSize: { type: String },
+    hipSize: { type: String },
     language: [{ type: String }],
     photos: [{ type: String }],
     verificationPhotos: [{ type: String }],
-    status: { type: Number, default: 0 }, // 0 (offline)  1 (online)
+    status: { type: Number, default: 1 }, // 0 (offline)  1 (online)
     date: { type: Number },
-    profilePic: { type: String, default: '/default.png' }
+    profilePic: { type: String, default: '/default.png' },
+    measurments: [{ type: String }],
+    isDeleted: { type: Number, default: 0 }
 
 
 })

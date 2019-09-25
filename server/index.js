@@ -12,6 +12,8 @@ const moment = require('moment')
 
 dotenv.config();
 app.use(express.static(path.join(process.cwd() + "/public/uploads/")));
+app.use(express.static(path.join(process.cwd() + "/public/csv/")));
+
 app.use(session({
     secret: 'user_id',
     resave: true,
