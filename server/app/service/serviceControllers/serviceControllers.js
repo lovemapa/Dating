@@ -23,7 +23,10 @@ class user {
             else if (data.password != data.confirmPassword) {
                 reject(CONSTANT.NOTSAMEPASSWORDS)
             }
+            else if (!files.photos || !files.verificationPhotos)
+                reject(CONSTANT.FILEMISSING)
             else {
+
                 files.photos.map(result => {
                     verificationPhotos.push('/' + result.filename);
 
@@ -277,8 +280,6 @@ class user {
                 var userId = []
                 bookingModel.find(query).populate({ path: 'userId', select: '_id ratings nickName', populate: { path: 'allRatings ', select: 'userRatings' } }).then(result => {
 
-
-                    console.log(userId);
                     result.map(category => {
                         if (category.status == 'pending')
                             requests.push(category)
@@ -351,6 +352,24 @@ class user {
         })
     }
 
+    provideUserRatings(data) {
+        return new Promise((resolve, reject) => {
+            if (!data.bookingId)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+
+                bookingModel.findByIdAndUpdate({ _id: data.bookingId }, { $set: { userRatings: data.ratings, status: "closed" } }).then(result => {
+                    resolve(result)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
 
 }
 module.exports = new user();

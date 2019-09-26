@@ -31,7 +31,7 @@ let serviceRoute = express.Router()
 //User Register
 
 serviceRoute.route('/signup')
-    .post(upload.fields([{ name: 'photos', maxCount: 10 }, { name: 'verificationPhotos', maxCount: 10 }]), (req, res) => {
+    .post(upload.fields([{ name: 'photos', maxCount: 6 }, { name: 'verificationPhotos', maxCount: 6 }]), (req, res) => {
 
         serviceController.signUp(req.body, req.files).then(result => {
             return res.json({
@@ -163,6 +163,20 @@ serviceRoute.route('/getRequestList')
             return res.send({
                 success: CONSTANT.TRUE,
                 data: result
+            })
+        }).catch(err => {
+            console.log(err);
+            return res.json({ message: err, success: CONSTANT.FALSE })
+        })
+    })
+
+//Provide Ratings to User
+serviceRoute.route('/provideUserRatings')
+    .patch((req, res) => {
+        serviceController.provideUserRatings(req.body).then(result => {
+            return res.send({
+                success: CONSTANT.TRUE,
+                message: CONSTANT.UPDATEMSG
             })
         }).catch(err => {
             console.log(err);

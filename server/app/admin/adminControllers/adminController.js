@@ -9,6 +9,7 @@ const commonController = require('../../common/controllers/commonController')
 const moment = require('moment')
 const generate = require('csv-generate')
 const assert = require('assert')
+const mongoose = require('mongoose')
 const { Parser } = require('json2csv');
 
 const fs = require('fs')
@@ -320,6 +321,8 @@ class admin {
                     query.houseName = data.houseName
                 if (data.houseNumber)
                     query.houseNumber = data.houseNumber
+                if (data.assignedUser)
+                    query.userId = mongoose.Types.ObjectId(data.assignedUser)
                 console.log(query);
 
                 bookingModel.findByIdAndUpdate({ _id: data.bookingId }, { $set: query }, { new: true }).then(result => {
@@ -334,5 +337,6 @@ class admin {
 
         })
     }
+
 }
 module.exports = new admin()

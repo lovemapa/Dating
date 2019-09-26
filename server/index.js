@@ -9,6 +9,11 @@ const flash = require('connect-flash');
 const session = require('express-session')
 const app = new express();
 const moment = require('moment')
+const socketRoute = require('../server/app/Socket/socketRoute')
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
+
 
 dotenv.config();
 app.use(express.static(path.join(process.cwd() + "/public/uploads/")));
@@ -67,9 +72,9 @@ mongoose.set('useFindAndModify', false);
 
 
 // mongoose.set('debug', true);
+socketRoute(io)
 
-
-app.listen(process.env.PORT, () => {
+http.listen(process.env.PORT, () => {
     // console.log(moment().add(1, "hour").add(10, "minute").valueOf());
     console.log(`🌍 app listening on port ${process.env.PORT}!`)
 })

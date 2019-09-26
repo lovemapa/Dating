@@ -17,7 +17,6 @@ class charity {
     signUp(data) {
 
         return new Promise((resolve, reject) => {
-            console.log(data);
 
             if (data.password != data.confirmPassword) {
                 reject(CONSTANT.NOTSAMEPASSWORDS)
@@ -188,7 +187,7 @@ class charity {
     servicesList() {
         return new Promise((resolve, reject) => {
 
-            serviceModel.find({ status: { $ne: 0 } }).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).
+            serviceModel.find({ status: { $ne: 0 }, isDeleted: 0 }).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).
                 then(result => {
 
                     resolve(result)
@@ -262,7 +261,7 @@ class charity {
             if (!data.userId)
                 reject(CONSTANT.MISSINGPARAMS)
             else {
-                console.log(data);
+
                 var query = {}
                 if (data.bookingId) {
                     query.userId = data.userId;
@@ -361,13 +360,13 @@ class charity {
         })
     }
 
-    provideRatings(data) {
+    provideServiceRatings(data) {
         return new Promise((resolve, reject) => {
-            if (!data._id)
+            if (!data.bookingId)
                 reject(CONSTANT.MISSINGPARAMS)
             else {
 
-                bookingModel.findByIdAndUpdate({ _id: data._id }, { $set: { status: "closed", serviceRatings: data.ratings } }).then(result => {
+                bookingModel.findByIdAndUpdate({ _id: data.bookingId }, { $set: { serviceRatings: data.ratings } }).then(result => {
                     resolve(result)
                 })
                     .catch(error => {
@@ -383,7 +382,6 @@ class charity {
 
     changePassword(data) {
         return new Promise((resolve, reject) => {
-            console.log(data);
 
             if (!data.oldPassword || !data.newPassword || !data.confirmPassword || !data._id)
                 reject(CONSTANT.MISSINGPARAMS)
@@ -412,11 +410,11 @@ class charity {
         })
     }
     cronJob() {
-        new CronJob('* * * * * *', function () {
+        new CronJob('* * * * *', function () {
             bookingModel.find({ status: "pending" }).then(result => {
                 result.forEach(value => {
 
-                    if (((Date.now() - value.date) / 60000) > 1) {
+                    if (((Date.now() - value.date) / 60000) > 5) {
                         bookingModel.updateMany({ _id: value._id }, { $set: { status: "closed", ratings: -1 } }, { multi: true }).
                             then(updateResult => {
                                 console.log(updateResult);
@@ -425,7 +423,7 @@ class charity {
                 })
             })
 
-        });
+        }, null, true, 'America/Los_Angeles');
     }
 
 }

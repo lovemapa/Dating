@@ -219,10 +219,10 @@ userRoute.route('/removeFavourites/:serviceId')
     })
   })
 
-//Provide Ratings to service and close the bookingf
-userRoute.route('/provideRatings')
+//Provide Ratings to service
+userRoute.route('/provideServiceRatings')
   .patch((req, res) => {
-    userController.provideRatings(req.body).then(result => {
+    userController.provideServiceRatings(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
         message: CONSTANT.UPDATEMSG
@@ -249,6 +249,6 @@ userRoute.route('/changePassword').
     })
   })
 
-userController.cronJob()
+// userController.cronJob()
 
 module.exports = userRoute;

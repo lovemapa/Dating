@@ -203,5 +203,7 @@ adminRoute.route('/updateBooking')
             return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
         })
 
+
+
     })
 module.exports = adminRoute
