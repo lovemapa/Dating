@@ -186,7 +186,39 @@ adminRoute.route('/displayBookings')
 
     })
 
+//Display Users
+adminRoute.route('/displayUsers')
+    .get((req, res) => {
+        adminController.displayUsers().then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
 
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
+
+//Display Services
+adminRoute.route('/displayServices')
+    .get((req, res) => {
+        adminController.displayServices().then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
 //Update Bookings
 adminRoute.route('/updateBooking')
     .patch((req, res) => {

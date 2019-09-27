@@ -99,12 +99,13 @@ class charity {
 
     verifyEmail(data) {
         return new Promise((resolve, reject) => {
-            if (!data._id || !data.token)
+            if (!data.userId || !data.token)
                 reject(CONSTANT.MISSINGPARAMS)
 
             else {
 
-                userModel.findOne({ _id: data._id }).then(result => {
+                +
+                userModel.findOne({ _id: data.userId }).then(result => {
                     if (result) {
                         if (result.token == data.token)
                             resolve(result)
@@ -138,6 +139,8 @@ class charity {
                     integer: true
                 })
                 userModel.findOneAndUpdate({ email: data.email }, { $set: { token: token } }, { new: true }).then(updateResult => {
+                    if (updateResult == null)
+                        reject(CONSTANT.NOTREGISTERED)
                     resolve(updateResult)
                     commonController.sendMail(data.email, token, result => {
                         if (result.status === 1)

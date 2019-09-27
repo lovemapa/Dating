@@ -156,6 +156,25 @@ serviceRoute.route('/changePassword').
         })
     })
 
+
+//update Service Details
+serviceRoute.route('/updateService').
+    patch((req, res) => {
+        serviceController.updateService(req.body).then(result => {
+            return res.json({
+
+                success: CONSTANT.TRUE,
+                message: CONSTANT.UPDATEMSG,
+                data: result
+            })
+        }).catch(error => {
+            console.log("error", error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS })
+        })
+    })
+
+
 //Get request List
 serviceRoute.route('/getRequestList')
     .post((req, res) => {

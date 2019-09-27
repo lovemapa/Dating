@@ -330,6 +330,50 @@ class user {
         })
     }
 
+    updateService(data) {
+        return new Promise((resolve, reject) => {
+            console.log(data);
+
+            if (!data.serviceId)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+                var query = {}
+                var measurments = []
+                if (data.cupSize && data.waistSize && data.hipSize) {
+                    measurments.push(data.cupSize)
+                    measurments.push(data.waistSize)
+                    measurments.push(data.hipSize)
+                    query.measurments = measurments
+                }
+                if (data.languages)
+                    query.languages = data.languages
+                if (data.age)
+                    query.age = data.age
+                if (data.maritalStatus)
+                    query.maritalStatus = data.maritalStatus
+                if (data.gender)
+                    query.gender = data.gender
+                if (data.height)
+                    query.height = data.height
+                if (data.bodyType)
+                    query.bodyType = data.bodyType
+                if (data.eyesColor)
+                    query.eyesColor = data.eyesColor
+
+                serviceModel.findByIdAndUpdate({ _id: data.serviceId }, { $set: query }, { new: true }).then(update => {
+                    resolve(update)
+
+
+                }).catch(error => {
+                    if (error.errors)
+                        return reject(commonController.handleValidation(error))
+                    if (error)
+                        return reject(error)
+                })
+
+            }
+        })
+    }
     setStatus(data) {
         return new Promise((resolve, reject) => {
             console.log(data);

@@ -303,8 +303,28 @@ class admin {
             })
         })
     }
-
-
+    displayUsers() {
+        return new Promise((resolve, reject) => {
+            userModel.find({}).select('_id email countryCode profilePic nickName callType area state').populate({ path: 'allRatings' }).then(result => {
+                resolve(result)
+            }).catch(error => {
+                if (error.errors)
+                    return reject(commonController.handleValidation(error))
+                return reject(error)
+            })
+        })
+    }
+    displayServices() {
+        return new Promise((resolve, reject) => {
+            serviceModel.find({}).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
+                resolve(result)
+            }).catch(error => {
+                if (error.errors)
+                    return reject(commonController.handleValidation(error))
+                return reject(error)
+            })
+        })
+    }
     updateBooking(data) {
         return new Promise((resolve, reject) => {
             if (!data)
