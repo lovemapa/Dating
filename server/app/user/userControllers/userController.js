@@ -9,6 +9,7 @@ const charityDocsModel = require('../../../models/charityDocumentModel')
 const favouritesModel = require('../../../models/favouritesModel')
 const moment = require('moment')
 const rn = require('random-number')
+const userIssue = require('../../../models/usersIssueModel')
 var CronJob = require('cron').CronJob;
 
 
@@ -44,7 +45,7 @@ class charity {
                     if (error.errors)
                         return reject(commonController.handleValidation(error))
                     if (error.code === 11000)
-                        return reject(CONSTANT.EXISTSMSG)
+                        return reject(CONSTANT.UNIQUEEMAILANDUSERNAME)
                     return reject(error)
                 })
             }
@@ -104,7 +105,7 @@ class charity {
 
             else {
 
-                +
+
                 userModel.findOne({ _id: data.userId }).then(result => {
                     if (result) {
                         if (result.token == data.token)
@@ -116,8 +117,6 @@ class charity {
                         reject(CONSTANT.NOTREGISTERED)
                 })
                     .catch(error => {
-
-
                         if (error.errors)
                             return reject(commonController.handleValidation(error))
                         if (error)
@@ -187,10 +186,16 @@ class charity {
 
 
     }
-    servicesList() {
+    servicesList(data) {
         return new Promise((resolve, reject) => {
+            console.log(data);
 
-            serviceModel.find({ status: { $ne: 0 }, isDeleted: 0 }).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).
+            var LIMIT = {}
+            if (data.isVerified == 'false')
+                LIMIT = { skip: 10, limit: 5 }
+            console.log(LIMIT);
+
+            serviceModel.find({ status: { $ne: 0 }, isDeleted: 0 }, {}, LIMIT).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).
                 then(result => {
 
                     resolve(result)
@@ -411,6 +416,42 @@ class charity {
                     })
             }
         })
+    }
+
+
+    addIssue(data, file) {
+        console.log(file);
+
+        return new Promise((resolve, reject) => {
+            if (!data.userId || !data.issue || !file || Object.keys(file).length === 0)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+
+                file.issueimage.map(result => {
+                    data.screenshot = '/' + result.filename
+
+                });
+                const issue = this.createUserService(data)
+                issue.save({}).then(result => {
+                    resolve(result)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
+
+    createUserService(data) {
+        let issueData = new userIssue({
+            userId: data.userId,
+            screenshot: data.screenshot,
+            issue: data.issue
+        })
+        return issueData
     }
     cronJob() {
         new CronJob('* * * * *', function () {

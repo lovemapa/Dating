@@ -5,6 +5,7 @@ const commonFunctions = require('../../common/controllers/commonFunctions')
 const commonController = require('../../common/controllers/commonController')
 const bookingModel = require('../../../models/bookingModel')
 const userModel = require('../../../models/userModel')
+const serviceIssue = require('../../../models/serviceIssueModel')
 
 const moment = require('moment')
 
@@ -413,6 +414,41 @@ class user {
                     })
             }
         })
+    }
+
+    addIssue(data, file) {
+        console.log(file);
+
+        return new Promise((resolve, reject) => {
+            if (!data.serviceId || !data.issue || !file || Object.keys(file).length === 0)
+                reject(CONSTANT.MISSINGPARAMS)
+            else {
+
+                file.issueimage.map(result => {
+                    data.screenshot = '/' + result.filename
+
+                });
+                const issue = this.createIssueService(data)
+                issue.save({}).then(result => {
+                    resolve(result)
+                })
+                    .catch(error => {
+                        if (error.errors)
+                            return reject(commonController.handleValidation(error))
+                        if (error)
+                            return reject(error)
+                    })
+            }
+        })
+    }
+
+    createIssueService(data) {
+        let issueData = new serviceIssue({
+            serviceId: data.serviceId,
+            screenshot: data.screenshot,
+            issue: data.issue
+        })
+        return issueData
     }
 
 }

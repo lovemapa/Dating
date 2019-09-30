@@ -45,7 +45,23 @@ adminRoute.route('/register')
 
     })
 
+//create user by Admin 
+adminRoute.route('/registerUser')
+    .post((req, res) => {
+        adminController.registerUser(req.body).then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+                message: CONSTANT.SIGNUPSUCCESS,
 
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
 //edit User    
 adminRoute.route('/editUser')
     .patch(upload, (req, res) => {
@@ -171,8 +187,8 @@ adminRoute.route('/generateServiceCSV')
 
 //Show alll requests List (pending , closed, ongoing)
 adminRoute.route('/displayBookings')
-    .get((req, res) => {
-        adminController.displayBookings().then(result => {
+    .post((req, res) => {
+        adminController.displayBookings(req.body).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
                 data: result,

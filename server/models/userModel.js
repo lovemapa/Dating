@@ -17,7 +17,8 @@ var userModelSchema = new Schema({
     callType: { type: String, enum: ['outcall', 'incall'] },
     favourites: [{ type: Schema.ObjectId, ref: 'service' }],
     isDeleted: { type: Number, default: 0 },
-    genderPreference: { type: String, enum: ['male', 'female'] }
+    genderPreference: { type: String, enum: ['male', 'female'] },
+    isVerified: { type: Boolean, default: false }
 
 })
 

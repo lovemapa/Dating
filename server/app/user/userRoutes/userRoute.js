@@ -24,15 +24,14 @@ const storage = multer.diskStorage({
     );
   }
 });
-const upload = multer({ storage: storage }).array('file', 10)
-
+const upload = multer({ storage: storage })
 
 let userRoute = express.Router()
 
 
 // Save Details of user
 userRoute.route('/register')
-  .post(upload, (req, res) => {
+  .post((req, res) => {
     userController.signUp(req.body).then(result => {
       return res.json({
         success: CONSTANT.TRUE,
@@ -119,8 +118,8 @@ userRoute.route('/completeRegistration')
 
 // Get list of service List
 userRoute.route('/servicesList')
-  .get((req, res) => {
-    userController.servicesList().then(result => {
+  .post((req, res) => {
+    userController.servicesList(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
         data: result
@@ -249,6 +248,20 @@ userRoute.route('/changePassword').
     })
   })
 
+//Add issue by service
+userRoute.route('/addIssue')
+  .post(upload.fields([{ name: 'issueimage', maxCount: 1 }]), (req, res) => {
+    userController.addIssue(req.body, req.files).then(result => {
+      return res.send({
+        success: CONSTANT.TRUE,
+        data: result,
+        message: CONSTANT.ISSUESUCCESSFULLY
+      })
+    }).catch(err => {
+      console.log(err);
+      return res.json({ message: err, success: CONSTANT.FALSE })
+    })
+  })
 // userController.cronJob()
 
 module.exports = userRoute;

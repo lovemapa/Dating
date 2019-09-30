@@ -32,12 +32,12 @@ class admin {
                 }).catch(error => {
                     if (error.errors)
                         return reject(commonController.handleValidation(error))
+
                     return reject(error)
                 })
             }
         })
     }
-
     // --------Create Admin Registration Model------------
     createAdmin(data) {
 
@@ -50,6 +50,57 @@ class admin {
         return adminRegistrationData;
     }
 
+    //===========================================================================================
+    //Create User
+    registerUser(data) {
+
+        return new Promise((resolve, reject) => {
+            console.log('data==', data);
+
+            if (!data.email || !data.password) {
+                reject(CONSTANT.MISSINGPARAMS)
+            }
+            if (data.password != data.confirmPassword)
+                reject(CONSTANT.NOTSAMEPASSWORDS)
+            else {
+                const userRegister = this.createUserRegistration(data)
+                userRegister.save().then((saveresult) => {
+                    resolve(saveresult)
+
+                }).catch(error => {
+                    if (error.errors)
+                        return reject(commonController.handleValidation(error))
+                    if (error.code === 11000)
+                        return reject(CONSTANT.UNIQUEEMAILANDUSERNAME)
+                    return reject(error)
+                })
+            }
+        })
+    }
+
+    // --------Create User Registration Model------------
+    createUserRegistration(data) {
+
+        data.password = commonFunctions.hashPassword(data.password)
+        let userRegistrationData = new userModel({
+            email: data.email,
+            countryCode: data.countryCode,
+            nickName: data.nickName,
+            password: data.password,
+            token: data.token,
+            callType: data.callType,
+            area: data.area,
+            state: data.state,
+            date: moment().valueOf(),
+            isVerified: true,
+            gender: data.gender,
+            genderPreference: data.genderPreference,
+
+        })
+        return userRegistrationData;
+    }
+
+    //===========================================================================================
     // admin Login
 
     login(data) {
@@ -292,9 +343,23 @@ class admin {
     }
 
 
-    displayBookings() {
+    displayBookings(data) {
         return new Promise((resolve, reject) => {
-            bookingModel.find({}).then(result => {
+
+            let query = {}
+            if (data.from && data.to)
+                query.date = {
+                    $gte: data.from,
+                    $lte: data.to
+                }
+            if (data.boookingFrom && data.bookingTo)
+                query.schedule = {
+                    $gte: data.boookingFrom,
+                    $lte: data.bookingTo
+                }
+            console.log(query);
+
+            bookingModel.find(query).then(result => {
                 resolve(result)
             }).catch(error => {
                 if (error.errors)
@@ -305,7 +370,7 @@ class admin {
     }
     displayUsers() {
         return new Promise((resolve, reject) => {
-            userModel.find({}).select('_id email countryCode profilePic nickName callType area state').populate({ path: 'allRatings' }).then(result => {
+            userModel.find({}).select('_id email countryCode profilePic gender nickName callType area state').populate({ path: 'allRatings' }).then(result => {
                 resolve(result)
             }).catch(error => {
                 if (error.errors)
@@ -316,7 +381,7 @@ class admin {
     }
     displayServices() {
         return new Promise((resolve, reject) => {
-            serviceModel.find({}).select('_id  firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
+            serviceModel.find({}).select('_id email contact status gender firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
                 resolve(result)
             }).catch(error => {
                 if (error.errors)

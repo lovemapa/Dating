@@ -202,4 +202,20 @@ serviceRoute.route('/provideUserRatings')
             return res.json({ message: err, success: CONSTANT.FALSE })
         })
     })
+
+
+//Add issue by service
+serviceRoute.route('/addIssue')
+    .post(upload.fields([{ name: 'issueimage', maxCount: 1 }]), (req, res) => {
+        serviceController.addIssue(req.body, req.files).then(result => {
+            return res.send({
+                success: CONSTANT.TRUE,
+                data: result,
+                message: CONSTANT.ISSUESUCCESSFULLY
+            })
+        }).catch(err => {
+            console.log(err);
+            return res.json({ message: err, success: CONSTANT.FALSE })
+        })
+    })
 module.exports = serviceRoute;
