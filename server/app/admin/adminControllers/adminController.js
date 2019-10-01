@@ -181,6 +181,10 @@ class admin {
                     query.username = data.username
                 if (data.status)
                     query.status = data.status
+                if (data.gender)
+                    query.gender = data.gender
+                if (data.contact)
+                    query.contact = data.contact
                 if (data.password)
                     query.password = commonFunctions.hashPassword(data.password)
                 console.log(query);
@@ -383,6 +387,18 @@ class admin {
         return new Promise((resolve, reject) => {
             serviceModel.find({}).select('_id email contact status gender firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
                 resolve(result)
+            }).catch(error => {
+                if (error.errors)
+                    return reject(commonController.handleValidation(error))
+                return reject(error)
+            })
+        })
+    }
+
+    displayParticularServices(_id) {
+        return new Promise((resolve, reject) => {
+            serviceModel.find({ _id: _id }).select('_id email contact status gender firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
+                resolve(result[0])
             }).catch(error => {
                 if (error.errors)
                     return reject(commonController.handleValidation(error))

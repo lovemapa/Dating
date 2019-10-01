@@ -82,7 +82,7 @@ adminRoute.route('/editUser')
 
 //Edit service
 adminRoute.route('/editService')
-    .patch(upload, (req, res) => {
+    .put(upload, (req, res) => {
         adminController.editService(req.body, req.file).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
@@ -223,6 +223,23 @@ adminRoute.route('/displayUsers')
 adminRoute.route('/displayServices')
     .get((req, res) => {
         adminController.displayServices().then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
+
+//Display Particular Service
+adminRoute.route('/displayServices/:_serviceId')
+    .get((req, res) => {
+        adminController.displayParticularServices(req.params._serviceId).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
                 data: result,
