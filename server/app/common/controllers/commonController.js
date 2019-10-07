@@ -36,7 +36,19 @@ class commonController {
         const decryptedEmail = await decrypt(email);
         return decryptedEmail;
     }
-    sendMail(email, token, cb) {
+
+    sendMail(email, _id, token, cb) {
+
+        var html, subject
+        if (_id == undefined || token == undefined) {
+            subject = 'Account verifciation'
+            html = `<p> Dear ${email} Your token for email verification is <b>${token}</b>.<br> Thank you</p>`
+        }
+        else {
+            subject = 'Request for Change Password'
+            html = `<p><a href='http://localhost:8081/api/user/forgetpassword/?token=${token}&user=${_id}'>click here to change password</a></p>`
+
+        }
         var smtpConfig = {
             host: 'smtp.gmail.com',
             port: 465,
@@ -50,8 +62,8 @@ class commonController {
         const mailOptions = {
             from: 'pk1605199432@gmail.com', // sender address
             to: email, // list of receivers
-            subject: 'Verification Mail', // Subject line
-            html: `<p>Hello ${email} your token is ${token} </p>`
+            subject: subject, // Subject line
+            html: html
 
         };
         transporter.sendMail(mailOptions, function (error, info) {

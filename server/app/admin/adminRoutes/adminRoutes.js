@@ -64,7 +64,7 @@ adminRoute.route('/registerUser')
     })
 //edit User    
 adminRoute.route('/editUser')
-    .patch(upload, (req, res) => {
+    .put(upload, (req, res) => {
         adminController.editUser(req.body, req.file).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
@@ -116,9 +116,12 @@ adminRoute.route('/login')
 
     })
 
+
+
+
 //Delete User
 adminRoute.route('/deleteUser/:user_id')
-    .patch((req, res) => {
+    .put((req, res) => {
         adminController.deleteUser(req.params.user_id).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
@@ -136,7 +139,7 @@ adminRoute.route('/deleteUser/:user_id')
 
 //Delete Service
 adminRoute.route('/deleteService/:service_id')
-    .patch((req, res) => {
+    .put((req, res) => {
         adminController.deleteService(req.params.service_id).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
@@ -252,9 +255,26 @@ adminRoute.route('/displayServices/:_serviceId')
         })
 
     })
+
+//Display Particular Service
+adminRoute.route('/displayParticularUser/:_userId')
+    .get((req, res) => {
+        adminController.displayParticularUser(req.params._userId).then(result => {
+            return res.json({
+                success: CONSTANT.TRUE,
+                data: result,
+
+            })
+        }).catch(error => {
+            console.log(error);
+
+            return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+        })
+
+    })
 //Update Bookings
 adminRoute.route('/updateBooking')
-    .patch((req, res) => {
+    .put((req, res) => {
         adminController.updateBooking(req.body).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,

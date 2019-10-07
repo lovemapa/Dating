@@ -35,7 +35,7 @@ class charity {
                 const userRegister = this.createUserRegistration(data)
                 userRegister.save().then((saveresult) => {
                     resolve({ message: CONSTANT.VERIFYMAIL, result: saveresult })
-                    commonController.sendMail(saveresult.email, token, result => {
+                    commonController.sendMail(saveresult.email, null, token, result => {
                         if (result.status === 1)
                             console.log(result.message.response);
                         else
@@ -64,6 +64,8 @@ class charity {
             callType: data.callType,
             area: data.area,
             state: data.state,
+            genderPreference: data.genderPreference,
+            gender: data.gender,
             date: moment().valueOf()
         })
         return userRegistrationData;
@@ -73,7 +75,7 @@ class charity {
 
     login(data) {
         return new Promise((resolve, reject) => {
-            if (!data.password && !data.email) {
+            if (!data.password && !data.username) {
                 reject(CONSTANT.MISSINGPARAMS)
             }
             if (!data.password)
@@ -106,10 +108,14 @@ class charity {
             else {
 
 
-                userModel.findOne({ _id: data.userId }).then(result => {
+                userModel.findByIdAndUpdate({ _id: data.userId }, { $set: { isVerified: true } }, { new: true }).then(result => {
                     if (result) {
-                        if (result.token == data.token)
+                        console.log(result);
+
+                        if (result.token == data.token) {
+
                             resolve(result)
+                        }
                         else
                             reject(CONSTANT.VERFIEDFALSE)
                     }
@@ -141,7 +147,7 @@ class charity {
                     if (updateResult == null)
                         reject(CONSTANT.NOTREGISTERED)
                     resolve(updateResult)
-                    commonController.sendMail(data.email, token, result => {
+                    commonController.sendMail(data.email, null, token, result => {
                         if (result.status === 1)
                             console.log(result.message.response);
 
@@ -185,6 +191,75 @@ class charity {
         })
 
 
+    }
+
+    forgotPassword(data) {
+        return new Promise((resolve, reject) => {
+            console.log(data);
+
+            if (!data.email)
+                reject('Kindly Provide Email')
+            userModel.findOne({ email: data.email }).then(result => {
+                if (!result) {
+                    reject(CONSTANT.NOTREGISTERED)
+                }
+                else {
+                    const token = rn({
+                        min: 1001,
+                        max: 9999,
+                        integer: true
+                    })
+                    userModel.findOneAndUpdate({ email: data.email }, { $set: { token: token } }).then(updateToken => {
+                        resolve(CONSTANT.VERIFYMAIL)
+                    })
+                    commonController.sendMail(data.email, result._id, token, (result) => {
+
+                        if (result.status === 1)
+                            console.log(result.message.response);
+
+                        else
+                            reject(result.message)
+                    })
+
+                }
+            })
+
+        })
+    }
+
+    forgetPasswordVerify(body, query) {
+        return new Promise((resolve, reject) => {
+
+            if (body.confirmpassword != body.password)
+                return reject("Password and confirm password not matched.")
+            userModel.findById(query.user).then(
+                result => {
+
+                    if (result && result.token == query.token) {
+
+                        userModel
+                            .findByIdAndUpdate(query.user, {
+                                password: commonFunctions.hashPassword(body.password),
+                                token: ""
+                            })
+                            .then(
+                                result1 => {
+                                    return resolve('Password changed successfully.')
+                                },
+                                err => {
+                                    return reject(err)
+                                }
+                            )
+                    }
+                    else {
+                        return reject({ expired: 1 })
+                    }
+                },
+                err => {
+                    return reject(err)
+                }
+            )
+        })
     }
     servicesList(data) {
         return new Promise((resolve, reject) => {

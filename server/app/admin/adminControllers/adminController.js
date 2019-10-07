@@ -164,7 +164,7 @@ class admin {
     editService(data, file) {
         return new Promise((resolve, reject) => {
 
-            if (!data) {
+            if (!data._id) {
                 reject(CONSTANT.MISSINGPARAMS)
             }
             else {
@@ -349,8 +349,17 @@ class admin {
 
     displayBookings(data) {
         return new Promise((resolve, reject) => {
+            console.log(data, typeof (data.status));
 
             let query = {}
+
+            if (data.status == 1) { query.status = 'confirmed' }
+            if (data.status == 2) { query.status = 'closed' }
+            if (data.status == 3) { query.status = 'pending' }
+
+
+
+
             if (data.from && data.to)
                 query.date = {
                     $gte: data.from,
@@ -361,9 +370,8 @@ class admin {
                     $gte: data.boookingFrom,
                     $lte: data.bookingTo
                 }
-            console.log(query);
 
-            bookingModel.find(query).then(result => {
+            bookingModel.find(query).populate({ path: 'serviceId', select: '_id ratings firstName lastName profilePic', populate: { path: "avgratings" } }).then(result => {
                 resolve(result)
             }).catch(error => {
                 if (error.errors)
@@ -374,7 +382,7 @@ class admin {
     }
     displayUsers() {
         return new Promise((resolve, reject) => {
-            userModel.find({}).select('_id email countryCode profilePic gender nickName callType area state').populate({ path: 'allRatings' }).then(result => {
+            userModel.find({ isDeleted: false }).select('_id email countryCode profilePic gender nickName callType area state').populate({ path: 'allRatings' }).then(result => {
                 resolve(result)
             }).catch(error => {
                 if (error.errors)
@@ -385,7 +393,7 @@ class admin {
     }
     displayServices() {
         return new Promise((resolve, reject) => {
-            serviceModel.find({}).select('_id email contact status gender firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
+            serviceModel.find({ isDeleted: false }).select('_id email contact status gender firstName lastName profilePic').populate({ path: 'avgratings' }).then(result => {
                 resolve(result)
             }).catch(error => {
                 if (error.errors)
@@ -406,6 +414,19 @@ class admin {
             })
         })
     }
+
+    displayParticularUser(_id) {
+        return new Promise((resolve, reject) => {
+            userModel.find({ _id: _id }).select('_id email countryCode profilePic gender nickName callType area state').populate({ path: 'avgratings' }).then(result => {
+                resolve(result[0])
+            }).catch(error => {
+                if (error.errors)
+                    return reject(commonController.handleValidation(error))
+                return reject(error)
+            })
+        })
+    }
+
     updateBooking(data) {
         return new Promise((resolve, reject) => {
             if (!data)

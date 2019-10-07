@@ -70,7 +70,7 @@ serviceRoute.route('/login')
 // Set Status Online /Offline
 
 serviceRoute.route('/setStatus')
-    .patch((req, res) => {
+    .put((req, res) => {
 
         serviceController.setStatus(req.body).then(result => {
             return res.json({
@@ -87,7 +87,9 @@ serviceRoute.route('/setStatus')
     })
 //Add Photos
 serviceRoute.route('/addPhotos').
-    patch(upload.fields([{ name: 'photos', maxCount: 10 }]), (req, res) => {
+    put(upload.fields([{ name: 'photos', maxCount: 10 }]), (req, res) => {
+        console.log(req.files);
+
         serviceController.addPhotos(req.body, req.files).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
@@ -102,7 +104,7 @@ serviceRoute.route('/addPhotos').
 
 //Add Verification Photo
 serviceRoute.route('/addVerificationPhotos').
-    patch(upload.fields([{ name: 'verificationPhotos', maxCount: 10 }]), (req, res) => {
+    put(upload.fields([{ name: 'verificationPhotos', maxCount: 10 }]), (req, res) => {
         serviceController.addVerificationPhotos(req.body, req.files).then(result => {
             return res.json({
                 success: CONSTANT.TRUE,
@@ -118,7 +120,7 @@ serviceRoute.route('/addVerificationPhotos').
 // Accept Request
 
 serviceRoute.route('/acceptDenyRequest').
-    patch((req, res) => {
+    put((req, res) => {
         serviceController.acceptDenyRequest(req.body).then(result => {
             var message
             if (result.status == 'confirmed')
@@ -141,7 +143,7 @@ serviceRoute.route('/acceptDenyRequest').
 // Change Password
 
 serviceRoute.route('/changePassword').
-    patch((req, res) => {
+    put((req, res) => {
         serviceController.changePassword(req.body).then(result => {
             return res.json({
 
@@ -159,7 +161,7 @@ serviceRoute.route('/changePassword').
 
 //update Service Details
 serviceRoute.route('/updateService').
-    patch((req, res) => {
+    put((req, res) => {
         serviceController.updateService(req.body).then(result => {
             return res.json({
 
@@ -191,7 +193,7 @@ serviceRoute.route('/getRequestList')
 
 //Provide Ratings to User
 serviceRoute.route('/provideUserRatings')
-    .patch((req, res) => {
+    .put((req, res) => {
         serviceController.provideUserRatings(req.body).then(result => {
             return res.send({
                 success: CONSTANT.TRUE,
@@ -207,6 +209,8 @@ serviceRoute.route('/provideUserRatings')
 //Add issue by service
 serviceRoute.route('/addIssue')
     .post(upload.fields([{ name: 'issueimage', maxCount: 1 }]), (req, res) => {
+        console.log(req.body, req.files);
+
         serviceController.addIssue(req.body, req.files).then(result => {
             return res.send({
                 success: CONSTANT.TRUE,

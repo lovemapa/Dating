@@ -85,7 +85,7 @@ userRoute.route('/verifyEmail')
 
 //Resend verification mail incase it failed 
 userRoute.route('/resendVerification')
-  .patch((req, res) => {
+  .put((req, res) => {
     userController.resendVerification(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
@@ -101,7 +101,7 @@ userRoute.route('/resendVerification')
   })
 
 userRoute.route('/completeRegistration')
-  .patch((req, res) => {
+  .put((req, res) => {
     userController.completeRegistration(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
@@ -114,6 +114,60 @@ userRoute.route('/completeRegistration')
       return res.json({ message: err, success: CONSTANT.FALSE })
 
     })
+  })
+
+
+// Set Error Message for forgetPassword
+
+userRoute.route('/forgetpassword').
+  get((req, res) => {
+    if (!(req.query.user || req.query.token)) {
+      res.redirect('/server/app/views/404-page')
+    }
+    let message = req.flash('errm');
+    console.log("messagev", message);
+
+    res.render('forgetPassword', { title: 'Forget password', message })
+  })
+
+
+//Forgot Password
+
+userRoute.route('/forget-password')
+  .post((req, res) => {
+
+    userController.forgotPassword(req.body).then(result => {
+      return res.json({
+        success: CONSTANT.TRUE,
+        data: CONSTANT.CHANGEPASSWORDLINK
+
+      })
+    }).catch(error => {
+      console.log("error", error);
+
+      return res.json({ message: error, status: CONSTANT.FALSESTATUS })
+    })
+  })
+
+
+// Verify Passowrd
+
+userRoute.route('/forgetpassword').
+  post((req, res) => {
+    userController.forgetPasswordVerify(req.body, req.query).then(
+      message => {
+        res.render('forgetPassword', { message: message, title: 'Forget password' })
+      },
+      err => {
+        if (err.expired) {
+          return res.send(`<h1 style="text-align:center; font-size:100px" >Forget password link has been expired.</h1>`)
+        }
+        req.flash('errm', err)
+
+        let url = `/api/user/forgetpassword?token=${req.query.token}&user=${req.query.user}`
+        res.redirect(url)
+      }
+    )
   })
 
 // Get list of service List
@@ -175,7 +229,7 @@ userRoute.route('/getRequestList')
 
 //add Favourites
 userRoute.route('/addFavourites')
-  .patch((req, res) => {
+  .put((req, res) => {
     userController.addFavourites(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
@@ -220,7 +274,7 @@ userRoute.route('/removeFavourites/:serviceId')
 
 //Provide Ratings to service
 userRoute.route('/provideServiceRatings')
-  .patch((req, res) => {
+  .put((req, res) => {
     userController.provideServiceRatings(req.body).then(result => {
       return res.send({
         success: CONSTANT.TRUE,
@@ -233,7 +287,7 @@ userRoute.route('/provideServiceRatings')
   })
 
 userRoute.route('/changePassword').
-  patch((req, res) => {
+  put((req, res) => {
     userController.changePassword(req.body).then(result => {
       return res.json({
 
