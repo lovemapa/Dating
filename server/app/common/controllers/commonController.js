@@ -46,7 +46,7 @@ class commonController {
         }
         else {
             subject = 'Request for Change Password'
-            html = `<p><a href='http://localhost:8081/api/user/forgetpassword/?token=${token}&user=${_id}'>click here to change password</a></p>`
+            html = `<p><a href='http://192.168.1.11:8081/api/user/forgetpassword/?token=${token}&user=${_id}'>click here to change password</a></p>`
 
         }
         var smtpConfig = {
