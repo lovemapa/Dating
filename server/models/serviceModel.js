@@ -27,7 +27,8 @@ var serviceModelSchema = new Schema({
     profilePic: { type: String, default: '/default.png' },
     measurments: [{ type: String }],
     isDeleted: { type: Number, default: 0 },
-    maritalStatus: { type: String }
+    maritalStatus: { type: String },
+    token: { type: String, default: '' }
 
 
 })

@@ -18,6 +18,7 @@ let constant = {
     VERIFYMAIL: 'Verification Link has been sent on your mail',
     REMOVEFAV: 'Removed from favourites',
     NOTREGISTERED: 'This email not registered with any account',
+    NOTVERIFIED: 'Not Verified yet',
     WRONGCODEUSED: 'Verification code is not correct.',
     EXISTSMSG: 'associated with another account(Account already taken, try another)',
     UNIQUEEMAILANDUSERNAME: 'Email or username already taken , Provide unique email and username',

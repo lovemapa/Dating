@@ -35,7 +35,7 @@ class charity {
                 const userRegister = this.createUserRegistration(data)
                 userRegister.save().then((saveresult) => {
                     resolve({ message: CONSTANT.VERIFYMAIL, result: saveresult })
-                    commonController.sendMail(saveresult.email, null, token, result => {
+                    commonController.sendMailandVerify(saveresult.email, saveresult._id, token, 'user', result => {
                         if (result.status === 1)
                             console.log(result.message.response);
                         else
@@ -61,10 +61,10 @@ class charity {
             nickName: data.nickName,
             password: data.password,
             token: data.token,
-            callType: data.callType,
-            area: data.area,
-            state: data.state,
-            genderPreference: data.genderPreference,
+            //   callType: data.callType,
+            // area: data.area,
+            //state: data.state,
+            //genderPreference: data.genderPreference,
             gender: data.gender,
             date: moment().valueOf()
         })
@@ -98,29 +98,56 @@ class charity {
         })
     }
 
+    verify(query) {
+        return new Promise((resolve, reject) => {
+            if (!query.user)
+                reject(CONSTANT.MISSINGPARAMS)
+
+            else {
+                userModel.findById(query.user).then(result => {
+                    if (result.token == query.token) {
+                        userModel.findByIdAndUpdate(query.user, { $set: { isVerified: true } }, { new: true }).then(result => {
+                            if (result) {
+
+                                resolve(result)
+
+                            }
+                            else
+                                reject(CONSTANT.NOTREGISTERED)
+                        })
+                            .catch(error => {
+                                if (error.errors)
+                                    return reject(commonController.handleValidation(error))
+                                if (error)
+                                    return reject(error)
+                            })
+                    }
+                    else {
+                        reject("UNAUTHORIZED")
+                    }
+                })
+
+            }
+
+        })
+    }
+
     //verification of email
 
     verifyEmail(data) {
         return new Promise((resolve, reject) => {
-            if (!data.userId || !data.token)
+            if (!data.userId)
                 reject(CONSTANT.MISSINGPARAMS)
 
             else {
 
 
-                userModel.findByIdAndUpdate({ _id: data.userId }, { $set: { isVerified: true } }, { new: true }).then(result => {
-                    if (result) {
-                        console.log(result);
-
-                        if (result.token == data.token) {
-
-                            resolve(result)
-                        }
-                        else
-                            reject(CONSTANT.VERFIEDFALSE)
+                userModel.findOne({ _id: data.userId }).then(result => {
+                    if (result.isVerified) {
+                        resolve(result)
                     }
                     else
-                        reject(CONSTANT.NOTREGISTERED)
+                        reject(CONSTANT.NOTVERIFIED)
                 })
                     .catch(error => {
                         if (error.errors)
@@ -147,7 +174,7 @@ class charity {
                     if (updateResult == null)
                         reject(CONSTANT.NOTREGISTERED)
                     resolve(updateResult)
-                    commonController.sendMail(data.email, null, token, result => {
+                    commonController.sendMail(data.email, null, token, null, result => {
                         if (result.status === 1)
                             console.log(result.message.response);
 
@@ -212,7 +239,7 @@ class charity {
                     userModel.findOneAndUpdate({ email: data.email }, { $set: { token: token } }).then(updateToken => {
                         resolve(CONSTANT.VERIFYMAIL)
                     })
-                    commonController.sendMail(data.email, result._id, token, (result) => {
+                    commonController.sendMail(data.email, result._id, token, 'user', (result) => {
 
                         if (result.status === 1)
                             console.log(result.message.response);

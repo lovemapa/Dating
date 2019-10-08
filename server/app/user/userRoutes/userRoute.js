@@ -83,6 +83,26 @@ userRoute.route('/verifyEmail')
     })
   })
 
+// Save Details of user
+userRoute.route('/verify')
+  .get((req, res) => {
+    userController.verify(req.query).then(result => {
+
+      return res.send(`<h1 style="text-align:center; font-size:100px" >Verified successfully</h1>`)
+      // return res.json({
+      //   success: CONSTANT.TRUE,
+      //   data: result.result,
+      //   message: result.message,
+
+      // })
+    }).catch(error => {
+      console.log(error);
+
+      return res.json({ message: error, status: CONSTANT.FALSESTATUS, success: CONSTANT.FALSE })
+    })
+
+  })
+
 //Resend verification mail incase it failed 
 userRoute.route('/resendVerification')
   .put((req, res) => {

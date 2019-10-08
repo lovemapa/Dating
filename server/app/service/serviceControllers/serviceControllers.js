@@ -6,6 +6,7 @@ const commonController = require('../../common/controllers/commonController')
 const bookingModel = require('../../../models/bookingModel')
 const userModel = require('../../../models/userModel')
 const serviceIssue = require('../../../models/serviceIssueModel')
+const rn = require('random-number')
 
 const moment = require('moment')
 
@@ -118,6 +119,8 @@ class user {
 
     forgotPassword(data) {
         return new Promise((resolve, reject) => {
+            console.log(data);
+
             if (!data.email)
                 reject('Kindly Provide Email')
             serviceModel.findOne({ email: data.email }).then(result => {
@@ -125,12 +128,18 @@ class user {
                     reject(CONSTANT.NOTREGISTERED)
                 }
                 else {
-                    const token = Math.floor(Math.random() * 10000)
-                    serviceModel.findOneAndUpdate({ email: data.email }, { $set: { token: token } }).then(updateToken => {
+                    const token = rn({
+                        min: 1001,
+                        max: 9999,
+                        integer: true
                     })
-                    commonController.sendMail(data.email, result._id, token, (result) => {
+                    serviceModel.findOneAndUpdate({ email: data.email }, { $set: { token: token } }).then(updateToken => {
+                        resolve(CONSTANT.VERIFYMAIL)
+                    })
+                    commonController.sendMail(data.email, result._id, token, 'service', (result) => {
+
                         if (result.status === 1)
-                            resolve(CONSTANT.VERIFYMAIL)
+                            console.log(result.message.response);
 
                         else
                             reject(result.message)
@@ -144,6 +153,7 @@ class user {
 
     forgetPasswordVerify(body, query) {
         return new Promise((resolve, reject) => {
+            console.log('QUERY=====', query);
 
             if (body.confirmpassword != body.password)
                 return reject("Password and confirm password not matched.")
